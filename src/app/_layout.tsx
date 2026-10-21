@@ -14,6 +14,7 @@ export default function RootLayout() {
       <Stack.Screen name="index" options={{ title: 'Квесты', headerLargeTitleEnabled: true }} />
       <Stack.Screen name="scenario/[id]" options={{ title: 'Сценарий' }} />
       <Stack.Screen name="play/[id]" options={{ title: 'Этап' }} />
+      <Stack.Screen name="scan" options={{ presentation: 'fullScreenModal' }} />
     </Stack>
   );
 }

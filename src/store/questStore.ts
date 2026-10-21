@@ -1,4 +1,6 @@
+import { Subscription } from 'rxjs';
 import { create } from 'zustand';
+import { startQuestPipeline } from '@/broker/questPipeline';
 import { migrateDatabase } from '@/data/database';
 import { gameRepository } from '@/data/gameRepository';
 import { scenarioRepository } from '@/data/scenarioRepository';
@@ -19,6 +21,8 @@ type QuestState = {
 
 // Единый источник данных для всех ViewModel
 export const useQuestStore = create<QuestState>((set, get) => {
+  let pipeline: Subscription | undefined;
+
   const mutate =
     <A extends unknown[], R>(action: (...args: A) => Promise<R>) =>
     async (...args: A) => {
@@ -34,6 +38,9 @@ export const useQuestStore = create<QuestState>((set, get) => {
     checkpoints: [],
     loaded: false,
     start: async () => {
+      if (pipeline) return;
+      // Интерфейс обновляется, когда брокер сообщает о сохранённом прогрессе
+      pipeline = startQuestPipeline(() => get().reload());
       migrateDatabase();
       await scenarioRepository.seed();
       set({ scenarios: await scenarioRepository.getAll() });

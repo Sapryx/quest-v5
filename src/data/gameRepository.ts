@@ -57,23 +57,26 @@ export const gameRepository = {
     await db.runAsync('UPDATE playthroughs SET hints_used = hints_used + 1 WHERE id = ?', playthroughId);
   },
 
-  async completeStage(playthroughId: number, stageId: string, points: number, isLast: boolean) {
+  async completeStage(playthroughId: number, stageIndex: number, stageId: string, points: number, isLast: boolean) {
     const now = Date.now();
     await db.withExclusiveTransactionAsync(async (txn) => {
+      // Условие по stage_index не даёт засчитать один и тот же этап дважды
+      const result = await txn.runAsync(
+        `UPDATE playthroughs
+         SET stage_index = stage_index + 1, score = score + ?, hints_used = 0, finished_at = ?
+         WHERE id = ? AND stage_index = ? AND finished_at IS NULL`,
+        points,
+        isLast ? now : null,
+        playthroughId,
+        stageIndex,
+      );
+      if (result.changes === 0) throw new Error('этап уже засчитан');
       await txn.runAsync(
         'INSERT INTO checkpoints (playthrough_id, stage_id, points, reached_at) VALUES (?, ?, ?, ?)',
         playthroughId,
         stageId,
         points,
         now,
-      );
-      await txn.runAsync(
-        `UPDATE playthroughs
-         SET stage_index = stage_index + 1, score = score + ?, hints_used = 0, finished_at = ?
-         WHERE id = ?`,
-        points,
-        isLast ? now : null,
-        playthroughId,
       );
     });
   },

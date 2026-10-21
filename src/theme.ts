@@ -9,5 +9,6 @@ export const colors = {
   separator: PlatformColor('separator'),
   accent: PlatformColor('systemBlue'),
   danger: PlatformColor('systemRed'),
+  success: PlatformColor('systemGreen'),
   fill: PlatformColor('tertiarySystemFill'),
 };

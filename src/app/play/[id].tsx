@@ -11,7 +11,13 @@ import { usePlayViewModel } from '@/viewmodels/usePlayViewModel';
 
 export default function PlayScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const vm = usePlayViewModel(Number(id));
+  const playthroughId = Number(id);
+  const vm = usePlayViewModel(playthroughId);
+
+  const scan = () => {
+    vm.clearFeedback();
+    router.push({ pathname: '/scan', params: { playthroughId } });
+  };
 
   if (!vm.playthrough || !vm.scenario) {
     return <Text style={styles.empty}>Игра не найдена</Text>;
@@ -26,6 +32,7 @@ export default function PlayScreen() {
         <Text style={styles.finishText}>
           {vm.playthrough.score} баллов · {formatDuration(vm.totalTime)}
         </Text>
+        {vm.feedback?.success ? <Text style={styles.finishText}>{vm.feedback.message}</Text> : null}
         <Button title="На главную" primary onPress={() => router.dismissTo('/')} />
       </View>
     );
@@ -39,6 +46,14 @@ export default function PlayScreen() {
         <ProgressBar value={(vm.stageNumber - 1) / vm.stageCount} />
         <Text style={styles.progressText}>Набрано баллов: {vm.playthrough.score}</Text>
       </View>
+
+      {vm.feedback ? (
+        <View style={[styles.feedback, vm.feedback.success ? styles.success : styles.failure]}>
+          <Text style={styles.feedbackText}>
+            {vm.feedback.success ? '✅' : '⛔'} {vm.feedback.message}
+          </Text>
+        </View>
+      ) : null}
 
       <Card title={vm.stage.title}>
         <Text style={styles.riddle}>{vm.stage.riddle}</Text>
@@ -58,6 +73,8 @@ export default function PlayScreen() {
         <Text style={styles.condition}>{vm.stage.condition}</Text>
         <Row icon="⭐" title="Баллы за этап" detail={String(vm.availablePoints)} />
       </Card>
+
+      <Button title="Сканировать метку" primary onPress={scan} />
     </ScrollView>
   );
 }
@@ -69,6 +86,10 @@ const styles = StyleSheet.create({
   progressText: { color: colors.secondaryText, fontSize: 13, textAlign: 'center' },
   riddle: { color: colors.text, fontSize: 20, lineHeight: 28, padding: 16, fontStyle: 'italic' },
   condition: { color: colors.text, fontSize: 17, padding: 16, paddingBottom: 8 },
+  feedback: { marginHorizontal: 16, marginBottom: 20, borderRadius: 12, padding: 14 },
+  success: { backgroundColor: colors.success },
+  failure: { backgroundColor: colors.danger },
+  feedbackText: { color: 'white', fontSize: 17, fontWeight: '600' },
   finish: { justifyContent: 'center', paddingTop: 0 },
   trophy: { fontSize: 80, textAlign: 'center' },
   finishTitle: { color: colors.text, fontSize: 28, fontWeight: '700', textAlign: 'center', marginTop: 12 },
