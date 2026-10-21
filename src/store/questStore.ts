@@ -1,5 +1,7 @@
 import { create } from 'zustand';
-import { gameRepository, scenarioRepository } from '@/data/repositories';
+import { migrateDatabase } from '@/data/database';
+import { gameRepository } from '@/data/gameRepository';
+import { scenarioRepository } from '@/data/scenarioRepository';
 import { Checkpoint, Player, Playthrough, Scenario } from '@/models/quest';
 
 type QuestState = {
@@ -32,6 +34,8 @@ export const useQuestStore = create<QuestState>((set, get) => {
     checkpoints: [],
     loaded: false,
     start: async () => {
+      migrateDatabase();
+      await scenarioRepository.seed();
       set({ scenarios: await scenarioRepository.getAll() });
       await get().reload();
     },
