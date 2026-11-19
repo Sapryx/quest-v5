@@ -24,8 +24,6 @@ const scenarioSchema = z.object({
 const scenarios = new DocumentCollection<Scenario>('scenario', scenarioSchema);
 
 export const scenarioRepository = {
-  // Сценарии из комплекта приложения записываются в хранилище при каждом запуске,
-  // поэтому после обновления приложения в хранилище оказываются актуальные версии
   async seed() {
     await Promise.all(z.array(scenarioSchema).parse(bundledScenarios).map((s) => scenarios.put(s)));
   },

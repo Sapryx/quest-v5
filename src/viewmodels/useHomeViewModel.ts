@@ -48,7 +48,6 @@ export function useHomeViewModel() {
     [scenarios, playthroughs],
   );
 
-  // Журнал: каждая пройденная метка и время, затраченное на этап
   const journal = useMemo<JournalEntry[]>(() => {
     const entries = checkpoints.map((checkpoint) => {
       const playthrough = playthroughs.find((p) => p.id === checkpoint.playthroughId);

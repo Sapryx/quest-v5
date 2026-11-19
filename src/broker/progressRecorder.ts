@@ -2,7 +2,6 @@ import { catchError, concatMap, EMPTY, from, map } from 'rxjs';
 import { gameRepository } from '@/data/gameRepository';
 import { MessageBroker, QuestEvent } from './messageBroker';
 
-// Записывает подтверждённое прохождение этапа в базу данных и сообщает об обновлении прогресса
 export function startProgressRecorder(broker: MessageBroker) {
   return broker
     .on('TagAccepted')

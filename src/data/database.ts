@@ -2,7 +2,6 @@ import * as SQLite from 'expo-sqlite';
 
 export const db = SQLite.openDatabaseSync('quest.db');
 
-// Каждая миграция переводит схему на следующую версию (PRAGMA user_version)
 const migrations: string[] = [
   `
   CREATE TABLE player (

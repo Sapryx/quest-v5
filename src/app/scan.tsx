@@ -12,7 +12,6 @@ export default function ScanScreen() {
   const vm = useScannerViewModel(Number(playthroughId));
 
   const onScanned = (code: string) => {
-    // Результат проверки придёт на экран этапа через брокер сообщений
     if (vm.submit(code)) router.back();
   };
 

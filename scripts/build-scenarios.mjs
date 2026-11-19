@@ -1,5 +1,3 @@
-// Готовит сценарии для приложения: коды меток заменяются SHA-256 хэшами,
-// а сами коды выводятся в виде QR-кодов на страницу для печати (tags/tags.html)
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import QRCode from 'qrcode';

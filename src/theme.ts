@@ -1,6 +1,5 @@
 import { PlatformColor } from 'react-native';
 
-// Системные цвета iOS: автоматически подстраиваются под светлую и тёмную тему
 export const colors = {
   background: PlatformColor('systemGroupedBackground'),
   card: PlatformColor('secondarySystemGroupedBackground'),

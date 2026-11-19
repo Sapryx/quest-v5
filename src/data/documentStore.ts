@@ -1,8 +1,6 @@
 import { SQLiteStorage } from 'expo-sqlite/kv-store';
 import { z } from 'zod';
 
-// Нереляционное хранилище документов (замена Realm, недоступного в Expo Go):
-// объекты целиком хранятся как JSON по ключу «коллекция:id» и проверяются схемой при чтении
 const storage = new SQLiteStorage('documents.db');
 
 export class DocumentCollection<T extends { id: string }> {

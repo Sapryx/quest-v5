@@ -7,7 +7,6 @@ export type GameSnapshot = {
   checkpoints: Checkpoint[];
 };
 
-// Профиль игрока, история прохождений и временные метки (реляционная БД)
 export const gameRepository = {
   async load(): Promise<GameSnapshot> {
     const [player, playthroughs, checkpoints] = await Promise.all([
@@ -41,7 +40,6 @@ export const gameRepository = {
   async startPlaythrough(scenarioId: string) {
     let id = 0;
     await db.withExclusiveTransactionAsync(async (txn) => {
-      // Незавершённая игра по этому сценарию сбрасывается вместе с её отметками (каскадно)
       await txn.runAsync('DELETE FROM playthroughs WHERE scenario_id = ? AND finished_at IS NULL', scenarioId);
       const result = await txn.runAsync(
         'INSERT INTO playthroughs (scenario_id, started_at) VALUES (?, ?)',
@@ -60,7 +58,6 @@ export const gameRepository = {
   async completeStage(playthroughId: number, stageIndex: number, stageId: string, points: number, isLast: boolean) {
     const now = Date.now();
     await db.withExclusiveTransactionAsync(async (txn) => {
-      // Условие по stage_index не даёт засчитать один и тот же этап дважды
       const result = await txn.runAsync(
         `UPDATE playthroughs
          SET stage_index = stage_index + 1, score = score + ?, hints_used = 0, finished_at = ?

@@ -12,7 +12,6 @@ export function usePlayViewModel(playthroughId: number) {
   const revealHint = useQuestStore((s) => s.revealHint);
   const [feedback, setFeedback] = useState<ScanFeedback>();
 
-  // Экран подписан на результаты проверки меток своей игры
   useEffect(() => {
     const subscription = merge(
       broker.on('TagRejected').pipe(map((e) => ({ id: e.playthroughId, success: false, message: e.reason }))),

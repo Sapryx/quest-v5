@@ -38,7 +38,6 @@ export type Checkpoint = {
   reachedAt: number;
 };
 
-// Штраф за каждую открытую подсказку
 export const HINT_PENALTY = 5;
 
 export const stagePoints = (stage: Stage, hintsUsed: number) => Math.max(stage.points - hintsUsed * HINT_PENALTY, 0);

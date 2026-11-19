@@ -4,7 +4,6 @@ import { colors } from '@/theme';
 
 type Props = PropsWithChildren<{ title?: string; onTitlePress?: () => void }>;
 
-// Сгруппированный блок в стиле списков iOS
 export function Card({ title, onTitlePress, children }: Props) {
   return (
     <View style={styles.wrapper}>

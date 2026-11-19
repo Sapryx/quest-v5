@@ -19,7 +19,6 @@ type QuestState = {
   revealHint: (playthroughId: number) => Promise<void>;
 };
 
-// Единый источник данных для всех ViewModel
 export const useQuestStore = create<QuestState>((set, get) => {
   let pipeline: Subscription | undefined;
 
@@ -39,7 +38,6 @@ export const useQuestStore = create<QuestState>((set, get) => {
     loaded: false,
     start: async () => {
       if (pipeline) return;
-      // Интерфейс обновляется, когда брокер сообщает о сохранённом прогрессе
       pipeline = startQuestPipeline(() => get().reload());
       migrateDatabase();
       await scenarioRepository.seed();
@@ -55,6 +53,5 @@ export const useQuestStore = create<QuestState>((set, get) => {
   };
 });
 
-// Текущая (незавершённая) игра по сценарию
 export const findActivePlaythrough = (playthroughs: Playthrough[], scenarioId: string) =>
   playthroughs.findLast((p) => p.scenarioId === scenarioId && p.finishedAt === null);

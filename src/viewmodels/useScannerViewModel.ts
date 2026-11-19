@@ -2,7 +2,6 @@ import { useRef } from 'react';
 import { broker } from '@/broker/messageBroker';
 
 export function useScannerViewModel(playthroughId: number) {
-  // Камера присылает один и тот же код много раз подряд — публикуем только первый
   const published = useRef(false);
 
   return {

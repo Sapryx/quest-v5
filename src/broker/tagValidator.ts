@@ -5,8 +5,6 @@ import { scenarioRepository } from '@/data/scenarioRepository';
 import { stagePoints } from '@/models/quest';
 import { EventOf, MessageBroker, QuestEvent } from './messageBroker';
 
-// Изолированный валидатор: только читает данные и публикует результат проверки,
-// в базу данных ничего не записывает
 async function validate({ playthroughId, code }: EventOf<'TagScanned'>): Promise<QuestEvent> {
   const reject = (reason: string): QuestEvent => ({ type: 'TagRejected', playthroughId, reason });
 
@@ -34,7 +32,6 @@ export function startTagValidator(broker: MessageBroker) {
   return broker
     .on('TagScanned')
     .pipe(
-      // События обрабатываются строго по очереди, чтобы одна метка не засчиталась дважды
       concatMap((event) =>
         from(validate(event)).pipe(
           catchError((error) =>
