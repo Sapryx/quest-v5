@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { Button } from '@/components/Button';
 import { HeaderButton } from '@/components/HeaderButton';
+import { MockScanner } from '@/components/MockScanner';
 import { colors } from '@/theme';
 import { useScannerViewModel } from '@/viewmodels/useScannerViewModel';
 
@@ -20,7 +21,9 @@ export default function ScanScreen() {
       <Stack.Screen
         options={{ title: 'Сканер метки', headerLeft: () => <HeaderButton title="Закрыть" onPress={router.back} /> }}
       />
-      {!permission ? null : permission.granted ? (
+      {Platform.OS === 'web' ? (
+        <MockScanner onScanned={onScanned} />
+      ) : !permission ? null : permission.granted ? (
         <>
           <CameraView
             style={StyleSheet.absoluteFill}

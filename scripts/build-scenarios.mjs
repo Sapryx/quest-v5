@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import QRCode from 'qrcode';
 
@@ -13,12 +14,26 @@ const scenarios = source.map(({ stages, ...scenario }) => ({
 writeFileSync(new URL('src/data/scenarios.json', root), JSON.stringify(scenarios, null, 2) + '\n');
 
 const cards = [];
+const mockTags = [];
+mkdirSync(new URL('assets/mock-tags/', root), { recursive: true });
+const addMockTag = async (file, label, code) => {
+  await QRCode.toFile(fileURLToPath(new URL(`assets/mock-tags/${file}.png`, root)), code, { margin: 2, width: 300 });
+  mockTags.push(`  { label: '${label}', image: require('../../assets/mock-tags/${file}.png') },`);
+};
+
 for (const scenario of source) {
   for (const [index, stage] of scenario.stages.entries()) {
     const svg = await QRCode.toString(stage.code, { type: 'svg', margin: 1 });
     cards.push(`<figure>${svg}<figcaption><b>${scenario.title}</b><br>Этап ${index + 1}: ${stage.title}</figcaption></figure>`);
+    await addMockTag(stage.id, `${scenario.title} · этап ${index + 1}`, stage.code);
   }
 }
+await addMockTag('foreign', 'Посторонний QR-код', 'https://example.com/poster');
+
+writeFileSync(
+  new URL('src/data/mockTags.ts', root),
+  `export type MockTag = { label: string; image: number };\n\nexport const mockTags: MockTag[] = [\n${mockTags.join('\n')}\n];\n`,
+);
 
 mkdirSync(new URL('tags/', root), { recursive: true });
 writeFileSync(
