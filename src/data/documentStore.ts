@@ -22,9 +22,17 @@ export class DocumentCollection<T extends { id: string }> {
     return raw === null ? null : this.schema.parse(JSON.parse(raw));
   }
 
+  private async keys() {
+    return (await storage.getAllKeysAsync()).filter((key) => key.startsWith(`${this.name}:`));
+  }
+
+  async clear() {
+    await Promise.all((await this.keys()).map((key) => storage.removeItemAsync(key)));
+  }
+
   async all(): Promise<T[]> {
     const prefix = `${this.name}:`;
-    const keys = (await storage.getAllKeysAsync()).filter((key) => key.startsWith(prefix));
+    const keys = await this.keys();
     const documents: (T | null)[] = await Promise.all(keys.map((key) => this.get(key.slice(prefix.length))));
     return documents.filter((d) => d !== null);
   }

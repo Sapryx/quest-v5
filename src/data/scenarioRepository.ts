@@ -25,7 +25,9 @@ const scenarios = new DocumentCollection<Scenario>('scenario', scenarioSchema);
 
 export const scenarioRepository = {
   async seed() {
-    await Promise.all(z.array(scenarioSchema).parse(bundledScenarios).map((s) => scenarios.put(s)));
+    const bundled = z.array(scenarioSchema).parse(bundledScenarios);
+    await scenarios.clear();
+    await Promise.all(bundled.map((s) => scenarios.put(s)));
   },
   getAll: async () => (await scenarios.all()).sort((a, b) => a.title.localeCompare(b.title)),
   get: (id: string) => scenarios.get(id),
