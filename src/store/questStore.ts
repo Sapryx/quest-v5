@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs';
 import { create } from 'zustand';
 import { startQuestPipeline } from '@/broker/questPipeline';
-import { migrateDatabase } from '@/data/database';
+import { openDatabase } from '@/data/database';
 import { gameRepository } from '@/data/gameRepository';
 import { scenarioRepository } from '@/data/scenarioRepository';
 import { Checkpoint, Player, Playthrough, Scenario } from '@/models/quest';
@@ -39,7 +39,7 @@ export const useQuestStore = create<QuestState>((set, get) => {
     start: async () => {
       if (pipeline) return;
       pipeline = startQuestPipeline(() => get().reload());
-      migrateDatabase();
+      await openDatabase();
       await scenarioRepository.seed();
       set({ scenarios: await scenarioRepository.getAll() });
       await get().reload();

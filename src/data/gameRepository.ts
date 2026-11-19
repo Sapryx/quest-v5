@@ -1,5 +1,5 @@
 import { Checkpoint, Player, Playthrough } from '@/models/quest';
-import { db } from './database';
+import { db, inTransaction } from './database';
 
 export type GameSnapshot = {
   player: Player;
@@ -39,7 +39,7 @@ export const gameRepository = {
 
   async startPlaythrough(scenarioId: string) {
     let id = 0;
-    await db.withExclusiveTransactionAsync(async (txn) => {
+    await inTransaction(async (txn) => {
       await txn.runAsync('DELETE FROM playthroughs WHERE scenario_id = ? AND finished_at IS NULL', scenarioId);
       const result = await txn.runAsync(
         'INSERT INTO playthroughs (scenario_id, started_at) VALUES (?, ?)',
@@ -57,7 +57,7 @@ export const gameRepository = {
 
   async completeStage(playthroughId: number, stageIndex: number, stageId: string, points: number, isLast: boolean) {
     const now = Date.now();
-    await db.withExclusiveTransactionAsync(async (txn) => {
+    await inTransaction(async (txn) => {
       const result = await txn.runAsync(
         `UPDATE playthroughs
          SET stage_index = stage_index + 1, score = score + ?, hints_used = 0, finished_at = ?

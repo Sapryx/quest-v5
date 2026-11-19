@@ -1,6 +1,7 @@
+import { Platform } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 
-export const db = SQLite.openDatabaseSync('quest.db');
+export let db: SQLite.SQLiteDatabase;
 
 const migrations: string[] = [
   `
@@ -34,15 +35,20 @@ const migrations: string[] = [
   `,
 ];
 
-export function migrateDatabase() {
-  db.execSync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
-  const row = db.getFirstSync<{ user_version: number }>('PRAGMA user_version');
+export function inTransaction(task: (txn: SQLite.SQLiteDatabase) => Promise<void>) {
+  return Platform.OS === 'web' ? db.withTransactionAsync(() => task(db)) : db.withExclusiveTransactionAsync(task);
+}
+
+export async function openDatabase() {
+  db = await SQLite.openDatabaseAsync('quest.db');
+  await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
+  const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
   const version = row?.user_version ?? 0;
 
-  migrations.slice(version).forEach((sql, index) => {
-    db.withTransactionSync(() => {
-      db.execSync(sql);
-      db.execSync(`PRAGMA user_version = ${version + index + 1}`);
+  for (const [index, sql] of migrations.slice(version).entries()) {
+    await inTransaction(async (txn) => {
+      await txn.execAsync(sql);
+      await txn.execAsync(`PRAGMA user_version = ${version + index + 1}`);
     });
-  });
+  }
 }
